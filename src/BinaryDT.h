@@ -33,8 +33,11 @@ struct Node {
  */
 struct Tree {
     Node * root;
+    int size;
     Tree(): root(nullptr) {}
 };
+
+void Tre_WriteAag ( Tree * tree, ostream & fout );
 
 /**
  * Truth Table of Data Set
@@ -51,13 +54,14 @@ void Dat_Free ( Data * data );
 struct Manager {
     Tree * dtree;
     Data * data;
+    Manager(): dtree(nullptr), data(nullptr) {}
 };
 
 Manager * Man_Init ();
 void Man_LoadFile ( Manager * man, string filename );
-void Man_TrainDT ();
+void Man_TrainDT ( Manager * man );
 void Man_TestDT ();
-void Man_WriteAag ();
+void Man_WriteAag ( Manager * man, string filename );
 void Man_Free ( Manager * man );
 
 

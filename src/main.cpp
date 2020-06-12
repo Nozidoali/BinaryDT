@@ -18,9 +18,23 @@ int main() {
 
     auto Format = [] ( int number, Mode mode ) {
         ostringstream temp;
-        temp << "Benchmarks/ex"; // replaced by input directory
-        temp.width( 2 ); temp.fill('0'); temp << number;
-        temp << ( mode == TRAIN ? ".train.pla" : ".valid.pla" );
+        switch ( mode )
+        {
+        case TRAIN:
+            temp << "Benchmarks/ex"; // replaced by input directory
+            temp.width( 2 ); temp.fill('0'); temp << number;
+            temp << ".train.pla";
+            break;
+
+        case TEST:
+            temp << "Results/ex"; // replaced by output directory
+            temp.width( 2 ); temp.fill('0'); temp << number;
+            temp << ".aag";
+            break;    
+        
+        default:
+            break;
+        }
         return temp.str();
     };
 
@@ -28,8 +42,10 @@ int main() {
         cerr << "====== Start Training #" << i+1 << " / 100 ======" << endl;
         Manager * man = Man_Init();
         Man_LoadFile( man, Format( i, TRAIN ) );
+        Man_TrainDT ( man );
+        Man_WriteAag( man, Format( i, TEST ) );
         Man_Free( man );
     }
-    
+
     return 0;
 }

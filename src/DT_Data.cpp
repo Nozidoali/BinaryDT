@@ -45,7 +45,7 @@ void Dat_LoadPla ( Data * data, istream & fin ) {
             bool * offset = data->input + count * data->numInput;
             // get input
             ForEachIndex( data ) {
-                offset[i] = input[i] == '1';
+                *(offset+i) = input[i] == '1';
             }
             // get output
             fin >> output;
@@ -55,7 +55,7 @@ void Dat_LoadPla ( Data * data, istream & fin ) {
 }
 
 void Dat_Free ( Data * data ) {
-    delete [] data->input;  data->input  = nullptr;
-    delete [] data->output; data->output = nullptr;
+    delete data->input;  data->input  = nullptr;
+    delete data->output; data->output = nullptr;
     delete data; data = nullptr;
 } 
