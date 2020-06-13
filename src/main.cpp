@@ -47,11 +47,14 @@ int main( int argc, char * argv[] ) {
     //     Man_Free( man );
     // }
 
-    Manager * man = Man_Init();
-    Man_LoadFile( man, argv[1] );
-    Man_TrainDT ( man );
-    Man_WriteAag( man, argv[2] );
-    Man_Free( man );
+    if ( strcmp( argv[1], "train" ) == 0 ) {
+        Manager * man = Man_Init();
+        Man_LoadFile( man, argv[2] );
+        Man_TrainDT ( man );
+        Man_WriteAag( man, argv[3] );
+        Man_Free( man );
+    }
+
 
     return 0;
 }

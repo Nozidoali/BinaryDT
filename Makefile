@@ -13,7 +13,7 @@ OBJ_DIR = 	./obj
 
 SRC 	= 	${wildcard $(SRC_DIR)/*.cpp}
 OBJ 	= 	${patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRC)}
-LIB 	= 	-lpthread -lm
+LIB 	= 	-pthread -lm -L./abc -labc -ldl -lreadline
 
 # ======================================================= #
 #                                                         #
@@ -37,8 +37,11 @@ clean:
 test: clean init $(TARGET)
 	sh batch.sh
 
+toy: clean init $(TARGET)
+	sh toy.sh
+
 $(TARGET) 		: 	$(OBJ)
-	$(CC) $(CFLAGS) -o $@ $? $(LIB)
+	$(CC) $(CFLAGS) -o $@ $? $(LIB) 
 
 ${OBJ_DIR}/%.o	:	${SRC_DIR}/%.cpp
-	$(CC) -c $< -o $@
+	$(CC) -c $< -o $@ 

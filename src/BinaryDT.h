@@ -35,6 +35,7 @@ public:
     int literal; // -1 if non split
     Logic logic;
     set<int> entries;
+    set<int> indices;
     double * count;
     Node(): left(nullptr), right(nullptr) { 
         count = new double[2]; 

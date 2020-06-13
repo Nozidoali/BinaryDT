@@ -3,7 +3,7 @@
 double entropy;
 
 int Nod_Index ( Node * node, bool imp = false ) {
-    return imp? (node->literal << 1) + 2 : (node->literal << 1) + 3;
+    return imp? (node->literal << 1) + 3 : (node->literal << 1) + 2;
 }
 
 int Implement ( int index ) {
@@ -20,8 +20,8 @@ int Nod_WriteAag ( Node * node, AIG_Format * formater ) {
 
     auto Build = [] ( AIG_Format * formater, int l, int r, bool impl, bool impr, bool impo = false ) {
         int p = formater->input.size() + formater->output.size() + formater->nodes.size() + 1;
-        int ileft  = impl? l : l^1;
-        int iright = impl? r : r^1;
+        int ileft  = impl? l^1 : l;
+        int iright = impr? r^1 : r;
         formater->Add( ileft, iright, 2*p );
         return impo? 2*p+1 : 2*p;
     };
@@ -41,15 +41,15 @@ int Nod_WriteAag ( Node * node, AIG_Format * formater ) {
     int right = Nod_WriteAag( node->right, formater );
 
     int ileft, iright;
-    ileft = left >= 2 ? Build( formater, Nod_Index( node ), left, 0, 0 ) : Nod_Index( node );
-    iright = right >= 2 ? Build( formater, Nod_Index( node ), right, 1, 0 ) : Nod_Index( node, 1 );
+    ileft = left >= 2 ? Build( formater, Nod_Index( node ), left, 0, 0, 0 ) : Nod_Index( node );
+    iright = right >= 2 ? Build( formater, Nod_Index( node ), right, 1, 0, 0 ) : Nod_Index( node, 1 );
 
     // if tree is skewed
     if ( left == 0 ) {
-        return Implement( iright );
+        return iright;
     }
     if ( right == 0 ) {
-        return Implement( ileft );
+        return ileft;
     }
 
     // if tree is balance
@@ -58,7 +58,9 @@ int Nod_WriteAag ( Node * node, AIG_Format * formater ) {
 }
 
 void Tre_WriteAag ( Tree * tree, AIG_Format * formater ) {
-    Nod_WriteAag( tree->root, formater );
+    int output = Nod_WriteAag( tree->root, formater );
+    cout << "    (Node# = " << formater->nodes.size() << ")" << endl;
+    formater->output.push_back( output );
     return;
 }
 
@@ -90,13 +92,13 @@ double Nod_Split ( Node * node, Data * data, int index ) {
  */
 void Nod_TrainDT ( Node * node, Data * data ) {
     assert( node != nullptr );
-    cerr << " Entropy: ";
+    cerr << "    Entropy: ";
     cerr.precision(2); cerr << entropy << "\r"; cerr.flush();
     double bestScore = 0;
     int bestIndex = -1;
 
     // try each split
-    ForEachIndex( data ) {
+    for ( auto i : node->indices ) {
         double score = Nod_Split( node, data, i );
         if ( score > bestScore ) {
             bestScore = score;
@@ -110,7 +112,7 @@ void Nod_TrainDT ( Node * node, Data * data ) {
         node->logic = (node->count[1] > node->count[0]? CONST1 : CONST0);
         return;
     }
-    
+
     entropy -= bestScore;
 
     // Split left node and right node
@@ -119,7 +121,14 @@ void Nod_TrainDT ( Node * node, Data * data ) {
 
     node->left = new Node;
     node->right = new Node;
-    
+
+    node->indices.erase( bestIndex );
+    for ( auto i : node->indices ) {
+        node->left->indices.insert( i );
+        node->right->indices.insert( i );    
+    }
+    node->indices.clear();
+
     for ( auto & entry : node->entries ) {
         // index = True: left
         if ( Dat_LookUp( data, entry, bestIndex ) ) {
@@ -148,6 +157,10 @@ void Tre_TrainDT ( Tree * tree, Data * data ) {
     for ( int i = 0; i < data->size; i ++ ) {
         tree->root->entries.insert( i );
         tree->root->count[data->output[i]] ++;
+    }
+
+    ForEachIndex( data ) {
+        tree->root->indices.insert( i );
     }
 
     // initial entropy
