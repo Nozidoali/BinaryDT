@@ -20,21 +20,22 @@ void Man_LoadFile ( Manager * man, string filename ) {
 void Man_WriteAag ( Manager * man, string filename ) {
     ofstream fout ( filename );
     fout << "aag ";
-    fout << man->data->numInput + man->dtree->size << " ";  // M
+    fout << man->dtree->size << " ";                        // M
     fout << man->data->numInput << " ";                     // I
     fout << "0 ";                                           // L
     fout << man->data->numOutput << " ";                    // O
-    fout << man->dtree->size;                               // A
+    fout << man->dtree->size - man->data->numInput << endl; // A
     Tre_WriteAag( man->dtree, fout );
     fout.close();
 }
 
 void Man_TrainDT ( Manager * man ) {
+    cerr << "Training Decision Tree:" << endl;
     if ( man->dtree == nullptr ) {
         man->dtree = new Tree;
     }
+    Tre_TrainDT( man->dtree, man->data );
 }
-
 
 void Man_Free ( Manager * man ) {
     Dat_Free ( man->data );
