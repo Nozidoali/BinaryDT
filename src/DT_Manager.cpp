@@ -29,6 +29,12 @@ void Man_WriteAag ( Manager * man, string filename ) {
     fout.close();
 }
 
+void Man_WriteBlif ( Manager * man, string filename ) {
+    ofstream fout ( filename );
+    fout << ".model" << man->name;
+    
+}
+
 void Man_TrainDT ( Manager * man ) {
     cerr << "Training Decision Tree:" << endl;
     if ( man->dtree == nullptr ) {

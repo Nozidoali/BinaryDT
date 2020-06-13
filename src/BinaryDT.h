@@ -60,7 +60,8 @@ struct Data {
 struct Manager {
     Tree * dtree;
     Data * data;
-    Manager(): dtree(nullptr), data(nullptr) {}
+    string name;
+    Manager(): dtree(nullptr), data(nullptr), name("why") {}
 };
 
 Manager * Man_Init ();
@@ -69,8 +70,10 @@ double Entropy ( double count[2] );
 
 void Nod_TrainDT ( Node * node, Data * data );
 int Nod_WriteAag ( Node * node, ostream & fout );
+int Nod_WriteBlif ( Node * node, ostream & fout );
 
 void Tre_WriteAag ( Tree * tree, ostream & fout );
+void Tre_WriteBlif ( Tree * tree, ostream & fout );
 void Tre_TrainDT ( Tree * tree, Data * data );
 
 void Dat_LoadPla ( Data * data, istream & fin );
@@ -81,6 +84,7 @@ void Man_LoadFile ( Manager * man, string filename );
 void Man_TrainDT ( Manager * man );
 void Man_TestDT ();
 void Man_WriteAag ( Manager * man, string filename );
+void Man_WriteBlif ( Manager * man, string filename );
 void Man_Free ( Manager * man );
 
 
