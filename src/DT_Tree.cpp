@@ -1,20 +1,6 @@
 #include "BinaryDT.h"
 
-int max_index;
 double entropy;
-
-void Ind_Init() {
-    max_index = 0;
-}
-
-int Ind_Get() {
-    max_index ++;
-    return max_index;
-}
-
-int Ind_Val() {
-    return max_index;
-}
 
 int Nod_Index ( Node * node, bool imp = false ) {
     return imp? (node->literal << 1) + 2 : (node->literal << 1) + 3;
@@ -30,15 +16,13 @@ int Implement ( int index ) {
  * node = ( literal * left ) + ( !literal * right )
  *      = !( !( literal * left ) * !( !literal * right ) )
  */
-int Nod_WriteAag ( Node * node, ostream & fout ) {
+int Nod_WriteAag ( Node * node, AIG_Format * formater ) {
 
-    auto Build = [] ( ostream & fout, int l, int r, bool impl, bool impr, bool impo = false ) {
-        int p = Ind_Get();
+    auto Build = [] ( AIG_Format * formater, int l, int r, bool impl, bool impr, bool impo = false ) {
+        int p = formater->input.size() + formater->output.size() + formater->nodes.size() + 1;
         int ileft  = impl? l : l^1;
         int iright = impl? r : r^1;
-        fout << 2*p << " ";
-        fout << ileft << " ";
-        fout << iright << endl;
+        formater->Add( ileft, iright, 2*p );
         return impo? 2*p+1 : 2*p;
     };
 
@@ -53,12 +37,12 @@ int Nod_WriteAag ( Node * node, ostream & fout ) {
     // valid PI
     assert( node->literal >= 0 );
 
-    int left  = Nod_WriteAag( node->left,  fout );
-    int right = Nod_WriteAag( node->right, fout );
+    int left  = Nod_WriteAag( node->left,  formater );
+    int right = Nod_WriteAag( node->right, formater );
 
     int ileft, iright;
-    ileft = left >= 2 ? Build( fout, Nod_Index( node ), left, 0, 0 ) : Nod_Index( node );
-    iright = right >= 2 ? Build( fout, Nod_Index( node ), right, 1, 0 ) : Nod_Index( node, 1 );
+    ileft = left >= 2 ? Build( formater, Nod_Index( node ), left, 0, 0 ) : Nod_Index( node );
+    iright = right >= 2 ? Build( formater, Nod_Index( node ), right, 1, 0 ) : Nod_Index( node, 1 );
 
     // if tree is skewed
     if ( left == 0 ) {
@@ -69,13 +53,12 @@ int Nod_WriteAag ( Node * node, ostream & fout ) {
     }
 
     // if tree is balance
-    return Build( fout, ileft, iright, 1, 1, 1 );
+    return Build( formater, ileft, iright, 1, 1, 1 );
 
 }
 
-void Tre_WriteAag ( Tree * tree, ostream & fout ) {
-    Ind_Init();
-    Nod_WriteAag( tree->root, fout );
+void Tre_WriteAag ( Tree * tree, AIG_Format * formater ) {
+    Nod_WriteAag( tree->root, formater );
     return;
 }
 
@@ -107,7 +90,6 @@ double Nod_Split ( Node * node, Data * data, int index ) {
  */
 void Nod_TrainDT ( Node * node, Data * data ) {
     assert( node != nullptr );
-    cerr << "    Node #: " << Ind_Val();
     cerr << " Entropy: ";
     cerr.precision(2); cerr << entropy << "\r"; cerr.flush();
     double bestScore = 0;
@@ -129,8 +111,6 @@ void Nod_TrainDT ( Node * node, Data * data ) {
         return;
     }
     
-    Ind_Get();
-
     entropy -= bestScore;
 
     // Split left node and right node
@@ -164,12 +144,6 @@ void Nod_TrainDT ( Node * node, Data * data ) {
 
 void Tre_TrainDT ( Tree * tree, Data * data ) {
 
-    // assign id
-    Ind_Init();
-    ForEachIndex( data ) {
-        Ind_Get();
-    }
-
     tree->root = new Node;
     for ( int i = 0; i < data->size; i ++ ) {
         tree->root->entries.insert( i );
@@ -181,7 +155,6 @@ void Tre_TrainDT ( Tree * tree, Data * data ) {
 
     // recursion training
     Nod_TrainDT( tree->root, data ); 
-    tree->size = Ind_Val();
 
     cerr << endl;
 }

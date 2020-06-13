@@ -18,15 +18,16 @@ void Man_LoadFile ( Manager * man, string filename ) {
 }
 
 void Man_WriteAag ( Manager * man, string filename ) {
-    ofstream fout ( filename );
-    fout << "aag ";
-    fout << man->dtree->size << " ";                        // M
-    fout << man->data->numInput << " ";                     // I
-    fout << "0 ";                                           // L
-    fout << man->data->numOutput << " ";                    // O
-    fout << man->dtree->size - man->data->numInput << endl; // A
-    Tre_WriteAag( man->dtree, fout );
-    fout.close();
+
+    AIG_Format * formater = new AIG_Format;
+    formater->filename = filename;
+    for ( int i = 0; i< man->data->numInput; i ++ ) {
+        formater->input.push_back( 2*i + 2 );
+    }
+    Tre_WriteAag( man->dtree, formater );
+    formater->output.push_back( ( formater->input.size() + formater->nodes.size() ) * 2 + 1 );
+    formater->WriteFile();
+
 }
 
 void Man_WriteBlif ( Manager * man, string filename ) {

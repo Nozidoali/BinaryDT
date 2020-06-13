@@ -2,6 +2,7 @@
 #define BINARY_DECISION_TREE_H
 
 #include "Cmdline.h"
+#include "Format.h"
 #include <fstream>
 #include <cassert>
 #include <set>
@@ -27,7 +28,9 @@ enum Mode {
 /**
  * Node in Binary Decision Tree
  */
-struct Node {
+class Node {
+
+public:
     Node * left, * right;
     int literal; // -1 if non split
     Logic logic;
@@ -43,6 +46,8 @@ struct Node {
  * Binary Decision Tree
  */
 struct Tree {
+
+public:
     Node * root;
     int size;
     Tree(): root(nullptr) {}
@@ -51,13 +56,17 @@ struct Tree {
 /**
  * Truth Table of Data Set
  */
-struct Data {
+class Data {
+
+public:
     int numInput, numOutput, size;
     bool * input, * output;
     Data(): input(nullptr), output(nullptr) {}
 };
 
-struct Manager {
+class Manager {
+
+public:
     Tree * dtree;
     Data * data;
     string name;
@@ -69,10 +78,10 @@ Manager * Man_Init ();
 double Entropy ( double count[2] );
 
 void Nod_TrainDT ( Node * node, Data * data );
-int Nod_WriteAag ( Node * node, ostream & fout );
+int Nod_WriteAag ( Node * node, AIG_Format * fout );
 int Nod_WriteBlif ( Node * node, ostream & fout );
 
-void Tre_WriteAag ( Tree * tree, ostream & fout );
+void Tre_WriteAag ( Tree * tree, AIG_Format * fout );
 void Tre_WriteBlif ( Tree * tree, ostream & fout );
 void Tre_TrainDT ( Tree * tree, Data * data );
 

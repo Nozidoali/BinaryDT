@@ -6,13 +6,13 @@
 parser Cmdline_Parser( int argc, char * argv[] )
 {
     parser option;
-    option.add < string > ( "input",  'i', "Input PLA file",  true, "./benchmarks/c17.blif");
-    option.add < string > ( "output", 'o', "Output BLIF file", false, "");
+    option.add < string > ( "input",  'i', "Input PLA file",  true, "");
+    option.add < string > ( "output", 'o', "Output AAG file", true, "");
     option.parse_check( argc, argv );
     return option;
 }
 
-int main() {
+int main( int argc, char * argv[] ) {
 
     string iFileName, oFileName;
 
@@ -38,14 +38,20 @@ int main() {
         return temp.str();
     };
 
-    for ( int i = 0; i < 100; i++ ) {
-        cerr << "====== Start Training #" << i+1 << " / 100 ======" << endl;
-        Manager * man = Man_Init();
-        Man_LoadFile( man, Format( i, TRAIN ) );
-        Man_TrainDT ( man );
-        Man_WriteAag( man, Format( i, TEST ) );
-        Man_Free( man );
-    }
+    // for ( int i = 0; i < 100; i++ ) {
+    //     cerr << "====== Start Training #" << i+1 << " / 100 ======" << endl;
+    //     Manager * man = Man_Init();
+    //     Man_LoadFile( man, Format( i, TRAIN ) );
+    //     Man_TrainDT ( man );
+    //     Man_WriteAag( man, Format( i, TEST ) );
+    //     Man_Free( man );
+    // }
+
+    Manager * man = Man_Init();
+    Man_LoadFile( man, argv[1] );
+    Man_TrainDT ( man );
+    Man_WriteAag( man, argv[2] );
+    Man_Free( man );
 
     return 0;
 }
