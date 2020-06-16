@@ -48,3 +48,8 @@ void Man_Free ( Manager * man ) {
     Dat_Free ( man->data );
     delete man; man = nullptr;
 }
+
+
+double Man_ValidDT ( Manager * man ) {
+    
+}

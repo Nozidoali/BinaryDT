@@ -8,6 +8,9 @@
 #include <set>
 #include <cmath>
 
+#define MAX_DEPTH 100
+#define MAX_GAIN make_pair(0,1)
+
 using namespace std;
 using namespace cmdline;
 
@@ -33,6 +36,7 @@ class Node {
 public:
     Node * left, * right;
     int literal; // -1 if non split
+    int depth;   // 
     Logic logic;
     set<int> entries;
     set<int> indices;
@@ -65,6 +69,9 @@ public:
     Data(): input(nullptr), output(nullptr) {}
 };
 
+/**
+ * Manager: Perform Training and Validation on data
+ */
 class Manager {
 
 public:
@@ -78,24 +85,32 @@ Manager * Man_Init ();
 
 double Entropy ( double count[2] );
 
-void Nod_TrainDT ( Node * node, Data * data );
-int Nod_WriteAag ( Node * node, AIG_Format * fout );
-int Nod_WriteBlif ( Node * node, ostream & fout );
+/* ================================= Node ================================== */
 
-void Tre_WriteAag ( Tree * tree, AIG_Format * fout );
-void Tre_WriteBlif ( Tree * tree, ostream & fout );
-void Tre_TrainDT ( Tree * tree, Data * data );
+int         Nod_WriteAag    ( Node * node, AIG_Format * fout );
+int         Nod_WriteBlif   ( Node * node, ostream & fout );
+void        Nod_TrainDT     ( Node * node, Data * data );
 
-void Dat_LoadPla ( Data * data, istream & fin );
-void Dat_Free ( Data * data );
-bool Dat_LookUp ( Data * data, int entry, int index );
+/* ================================= Tree ================================== */
 
-void Man_LoadFile ( Manager * man, string filename );
-void Man_TrainDT ( Manager * man );
-void Man_TestDT ();
-void Man_WriteAag ( Manager * man, string filename );
-void Man_WriteBlif ( Manager * man, string filename );
-void Man_Free ( Manager * man );
+void        Tre_WriteAag    ( Tree * tree, AIG_Format * fout );
+void        Tre_WriteBlif   ( Tree * tree, ostream & fout );
+void        Tre_TrainDT     ( Tree * tree, Data * data );
+
+/* ================================= Data ================================== */
+
+void        Dat_LoadPla     ( Data * data, istream & fin );
+void        Dat_Free        ( Data * data );
+bool        Dat_LookUp      ( Data * data, int entry, int index );
+
+/* =============================== Manager ================================= */
+
+void        Man_LoadFile    ( Manager * man, string filename );
+void        Man_WriteAag    ( Manager * man, string filename );
+void        Man_TrainDT     ( Manager * man );
+double      Man_ValidDT     ( Manager * man );
+void        Man_WriteBlif   ( Manager * man, string filename );
+void        Man_Free        ( Manager * man );
 
 
 #define ForEachInputRec( data ) \

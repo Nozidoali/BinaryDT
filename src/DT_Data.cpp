@@ -1,14 +1,5 @@
 #include "BinaryDT.h"
 
-double Entropy ( double count[] ) {
-    // calculate entropy (0+1)! / 0!1!
-    double sum = count[0] + count[1];
-    double entropy = sum * log( sum + 1 );
-    entropy -= count[0] * log( count[0] + 1 );
-    entropy -= count[1] * log( count[1] + 1 );
-    return entropy;
-}
-
 void Dat_LoadPla ( Data * data, istream & fin ) {
     int count = 0;
     string input, output;
