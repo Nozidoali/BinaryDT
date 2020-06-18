@@ -1,9 +1,17 @@
 #include "Engine.h"
 
-bool Train ( PLA_Format * input, vector<int> & row, vector<int> & col ) {
-    if (col.size() == 0) {
+bool NTest ( PLA_Format * input, unordered_set<int> & row, unordered_set<int> & col ) {
+    if (row.size() == 0) {
         return true;
     }
+    if (col.size() == 0) {
+        int count[2] = {0,0};
+        for ( auto i : row ) {
+            count[input->data[i].outputs[0]] ++;
+        }
+        return min(count[0], count[1]) == 0;
+    }
+
     auto Split = [&] ( int index ) {
         auto Entropy = [ ] ( double * count ) {
             double sum = count[0] + count[1];
@@ -34,41 +42,36 @@ bool Train ( PLA_Format * input, vector<int> & row, vector<int> & col ) {
             BestIndex = i;
         }
     }
-    
-    if ( BestIndex==-1 ) {
-        int count[2];
-        count[0] = count[1] = 0;
+
+    if ( BestIndex == -1 ) {
+        int count[2] = {0,0};
         for ( auto i : row ) {
             count[input->data[i].outputs[0]] ++;
         }
         return min(count[0], count[1]) == 0;
     }
 
-    vector<int> rowLeft, rowRight, colLeft, colRight;
+    int index = BestIndex;
+    unordered_set<int> rowLeft, rowRight, colLeft, colRight;
     for ( auto i : col ) {
-        colLeft.push_back( i );
-        colRight.push_back( i );
+        if (i==index) continue;
+        colLeft.insert( i );
+        colRight.insert( i );
     }
     for ( auto i : row ) {
-        if ( input->data[i].inputs[BestIndex] )
-            rowLeft.push_back( i );
+        if ( input->data[i].inputs[index] )
+            rowLeft.insert( i );
         else
-            rowRight.push_back( i );
+            rowRight.insert( i );
     }
     col.clear();
     row.clear();
-    int lError = Train( input, rowLeft, colLeft );
-    if (!lError)
-        return false;
-    int rError = Train( input, rowRight, colRight );
-    if (!rError)
-        return false;
 
-    return true;
+    return NTest( input, rowLeft, colLeft ) && NTest( input, rowRight, colRight );
 
 }
 
-void DT_Manager :: ExecuteCommand () {
+void NT_Manager :: ExecuteCommand () {
 
     // take pla as input and aag as output
     PLA_Format * input  = new PLA_Format;
@@ -78,19 +81,21 @@ void DT_Manager :: ExecuteCommand () {
 
     input->ReadFile();
 
-    vector<int> col, row;
+    unordered_set<int> col, row;
 
-    for (int i=0;i<16;i++) {
-        for (int j=0;j<16 && j!=i;j++)
-            col.push_back(j);
-        for (int k=0;k<6400;k++)
-            row.push_back(k);
-        cout << i << " : " << Train(input, row, col) << endl;  
-        col.clear();
-        row.clear();          
+    unordered_set<int> IRE; // irredandant entries
+    unordered_set<int> RE; // redandant entries
+    int numInput = input->data[0].inputs.size();
+    int size = input->data.size();
+
+    for (int k=0;k<size;k++)
+        row.insert(k);
+    for (int k=0;k<numInput;k++)
+        col.insert(k);
+
+    if ( NTest(input, row, col) ) {
+        cout << "Noise Free!" << endl;
     }
-
-
 
     // output->WriteFile();
 

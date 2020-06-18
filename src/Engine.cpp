@@ -5,7 +5,10 @@ void Run( string input, string output, string command ) {
     if ( command == "DT" ) {
         ((DT_Manager *)manager)->ExecuteCommand();
     }
-    else {
-
+    else if ( command == "RT" ) { 
+        ((RT_Manager *)manager)->ExecuteCommand();
+    }
+    else if ( command == "NT" ) { 
+        ((NT_Manager *)manager)->ExecuteCommand();
     }
 };

@@ -44,7 +44,7 @@ int main( int argc, char * argv[] ) {
     //     Man_Free( man );
     // }
 
-    Run("./Benchmarks/ex00.train.pla","./Results/ex00.aag","DT");
+    Run("./Benchmarks/ex22.train.pla","./Results/ex20.aag","NT");
 
     return 0;
 }

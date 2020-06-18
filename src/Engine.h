@@ -17,6 +17,7 @@
 #include <set>
 #include <unordered_set>
 #include <vector>
+#include <cmath>
 
 #include "Format.h"
 
@@ -34,10 +35,30 @@ public:
     void ExecuteCommand(){};
 };
 
+/**
+ * DT_Manager: Decision Tree Training
+ */
 class DT_Manager : public Manager {
 public:
     void ExecuteCommand ();
 };
+
+/**
+ * RT_Manager: Redundancy Test
+ */
+class RT_Manager : public Manager {
+public:
+    void ExecuteCommand ();
+};
+
+/**
+ * NT_Manager:  Noise Test
+ */
+class NT_Manager : public Manager {
+public:
+    void ExecuteCommand ();
+};
+
 
 static Manager * manager;
 void Run( string input, string output, string command );
