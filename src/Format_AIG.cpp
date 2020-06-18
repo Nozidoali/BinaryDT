@@ -16,8 +16,8 @@ void AIG_Format :: WriteFile () {
 
 void AIG_Format :: Add( int _left, int _right, int _out ) {
     Node node;
-    node.left = _left;
+    node.left  = _left;
     node.right = _right;
-    node.out = _out;
-    nodes.push_back(node);
+    node.out   = _out;
+    nodes.push_back( node );
 }
