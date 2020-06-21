@@ -18,6 +18,8 @@
 #include <unordered_set>
 #include <vector>
 #include <cmath>
+#include <random>
+#include <algorithm>
 
 #include "Format.h"
 

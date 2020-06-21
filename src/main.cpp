@@ -11,11 +11,11 @@ int main( int argc, char * argv[] ) {
     //     Man_Free( man );
     // }
 
-    if ( strcmp( argv[1], "train" ) == 0 ) {
-        Run(argv[2],argv[3],"DT");
-    }
+    // if ( strcmp( argv[1], "train" ) == 0 ) {
+    //     Run(argv[2],argv[3],"RD");
+    // }
 
-    
+    Run ("Benchmarks/ex20.train.pla","","RD");
 
     return 0;
 }
