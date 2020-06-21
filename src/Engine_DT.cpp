@@ -1,9 +1,7 @@
 #include "Engine.h"
 
-bool Train ( PLA_Format * input, vector<int> & row, vector<int> & col ) {
-    if (col.size() == 0) {
-        return true;
-    }
+int Train ( PLA_Format * input, AIG_Format * output, unordered_set<int> & row, unordered_set<int> & col ) {
+
     auto Split = [&] ( int index ) {
         auto Entropy = [ ] ( double * count ) {
             double sum = count[0] + count[1];
@@ -25,6 +23,14 @@ bool Train ( PLA_Format * input, vector<int> & row, vector<int> & col ) {
         double count[2] = { left[0]+right[0], left[1]+right[1] };
         return Entropy(count) - Entropy(left) - Entropy(right);
     };
+    auto Build = [] ( AIG_Format * formater, int l, int r, bool impl, bool impr, bool impo = false ) {
+        int p = formater->input.size() + formater->output.size() + formater->nodes.size() + 1;
+        int ileft  = impl? l^1 : l;
+        int iright = impr? r^1 : r;
+        formater->Add( ileft, iright, 2*p );
+        return impo? 2*p+1 : 2*p;
+    };
+
     int BestIndex = -1;
     double BestScore = 0;
     for ( auto i : col ) {
@@ -36,36 +42,48 @@ bool Train ( PLA_Format * input, vector<int> & row, vector<int> & col ) {
     }
     
     if ( BestIndex==-1 ) {
-        int count[2];
-        count[0] = count[1] = 0;
+        int count[2] = {0,0};
         for ( auto i : row ) {
             count[input->data[i].outputs[0]] ++;
         }
-        return min(count[0], count[1]) == 0;
+        return count[1] > count[0] ? 1:0;
     }
 
-    vector<int> rowLeft, rowRight, colLeft, colRight;
+    unordered_set<int> rowLeft, rowRight, colLeft, colRight;
     for ( auto i : col ) {
-        colLeft.push_back( i );
-        colRight.push_back( i );
+        colLeft.insert( i );
+        colRight.insert( i );
     }
     for ( auto i : row ) {
         if ( input->data[i].inputs[BestIndex] )
-            rowLeft.push_back( i );
+            rowLeft.insert( i );
         else
-            rowRight.push_back( i );
+            rowRight.insert( i );
     }
     col.clear();
     row.clear();
-    int lError = Train( input, rowLeft, colLeft );
-    if (!lError)
-        return false;
-    int rError = Train( input, rowRight, colRight );
-    if (!rError)
-        return false;
+    int left = Train( input, output, rowLeft, colLeft );
+    int right = Train( input, output, rowRight, colRight );
 
-    return true;
+    // degenerate
+    if ( left == 0 && right == 0 ) {
+        return 0;
+    }
 
+    int ileft, iright;
+    ileft = left >= 2 ? Build( output, 2*BestIndex+2, left, 0, 0, 0 ) : 2*BestIndex+2;
+    iright = right >= 2 ? Build( output, 2*BestIndex+3, right, 0, 0, 0 ) : 2*BestIndex+3;
+
+    // if tree is skewed
+    if ( left == 0 ) {
+        return iright;
+    }
+    if ( right == 0 ) {
+        return ileft;
+    }
+
+    // if tree is balance
+    return Build( output, ileft, iright, 1, 1, 1 );
 }
 
 void DT_Manager :: ExecuteCommand () {
@@ -78,21 +96,21 @@ void DT_Manager :: ExecuteCommand () {
 
     input->ReadFile();
 
-    vector<int> col, row;
+    unordered_set<int> col, row;
 
-    for (int i=0;i<16;i++) {
-        for (int j=0;j<16 && j!=i;j++)
-            col.push_back(j);
-        for (int k=0;k<6400;k++)
-            row.push_back(k);
-        cout << i << " : " << Train(input, row, col) << endl;  
-        col.clear();
-        row.clear();          
+    for (int j=0;j<input->data[0].inputs.size();j++)
+        col.insert(j);
+    for (int k=0;k<input->data.size();k++)
+        row.insert(k);
+
+    // define inputs
+    for ( int i = 0; i< input->data[0].inputs.size(); i ++ ) {
+        output->input.push_back( 2*i + 2 );
     }
+    // define output and train the nodes
+    output->output.push_back( Train(input, output, row, col) );  
 
-
-
-    // output->WriteFile();
+    output->WriteFile();
 
     delete input;
     delete output;

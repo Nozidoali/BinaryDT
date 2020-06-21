@@ -56,4 +56,18 @@ public:
 
 };
 
+class BLIF_Format : public Formater {
+
+public:
+    struct Entry {
+        vector<bool> inputs;    // input value
+        vector<bool> outputs;   // output value
+    };
+    vector<Entry> data;         // data
+    void WriteFile() {};
+    void ReadFile() {};
+
+};
+
+
 #endif

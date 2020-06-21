@@ -11,4 +11,7 @@ void Run( string input, string output, string command ) {
     else if ( command == "NT" ) { 
         ((NT_Manager *)manager)->ExecuteCommand();
     }
+    else if ( command == "RD" ) { 
+        ((RD_Manager *)manager)->ExecuteCommand();
+    }
 };

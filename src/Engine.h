@@ -59,6 +59,14 @@ public:
     void ExecuteCommand ();
 };
 
+/**
+ * RD_Manager:  Recomposition Decomposition
+ */
+class RD_Manager : public Manager {
+public:
+    void ExecuteCommand ();
+};
+
 
 static Manager * manager;
 void Run( string input, string output, string command );
